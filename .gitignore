@@ -1,0 +1,27 @@
+# Binaries
+backend/family-hub-server
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+
+# Go
+backend/vendor/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Environment
+backend/.env
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
