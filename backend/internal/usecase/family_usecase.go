@@ -12,7 +12,6 @@ type FamilyUsecase struct {
 	repo domain.FamilyRepository
 }
 
-
 // validateDates checks that birth_date < death_date when both are provided.
 func validateDates(req *domain.CreateFamilyMemberRequest) error {
 	if req.BirthDate == nil || req.DeathDate == nil {
@@ -52,20 +51,20 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]*domain.FamilyMember, error) {
 
 	memberMap := make(map[int64]*domain.FamilyMember, len(allMembers))
 	for _, m := range allMembers {
-		m.Children  = []*domain.FamilyMember{}
-		m.Spouses   = []*domain.FamilyMember{}
+		m.Children = []*domain.FamilyMember{}
+		m.Spouses = []*domain.FamilyMember{}
 		m.Marriages = []*domain.Marriage{}
 		memberMap[m.ID] = m
 	}
 
 	for _, marriage := range allMarriages {
 		husband, hOk := memberMap[marriage.HusbandID]
-		wife, wOk    := memberMap[marriage.WifeID]
+		wife, wOk := memberMap[marriage.WifeID]
 		if hOk && wOk {
-			husband.Spouses   = append(husband.Spouses, wife)
-			wife.Spouses      = append(wife.Spouses, husband)
+			husband.Spouses = append(husband.Spouses, wife)
+			wife.Spouses = append(wife.Spouses, husband)
 			husband.Marriages = append(husband.Marriages, marriage)
-			wife.Marriages    = append(wife.Marriages, marriage)
+			wife.Marriages = append(wife.Marriages, marriage)
 		}
 	}
 
@@ -128,15 +127,23 @@ func (u *FamilyUsecase) UpdateMember(id int64, req *domain.CreateFamilyMemberReq
 	if m == nil {
 		return nil, fmt.Errorf("member not found")
 	}
-	m.FullName   = req.FullName
-	m.Nickname   = req.Nickname
-	m.Gender     = req.Gender
-	m.BirthDate  = req.BirthDate
+
+	// Update non-photo fields
+	m.FullName = req.FullName
+	m.Nickname = req.Nickname
+	m.Gender = req.Gender
+	m.BirthDate = req.BirthDate
 	m.BirthPlace = req.BirthPlace
-	m.DeathDate  = req.DeathDate
-	m.PhotoURL   = req.PhotoURL
-	m.ParentID   = req.ParentID
-	m.Notes      = req.Notes
+	m.DeathDate = req.DeathDate
+	m.ParentID = req.ParentID
+	m.Notes = req.Notes
+
+	// Only update PhotoURL if explicitly provided in request
+	// This prevents accidentally clearing the photo_url when it's not included in the request
+	if req.PhotoURL != nil {
+		m.PhotoURL = req.PhotoURL
+	}
+
 	if err := u.repo.UpdateMember(m); err != nil {
 		return nil, err
 	}

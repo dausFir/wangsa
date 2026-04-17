@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/wangsa/backend/config"
 	"github.com/wangsa/backend/internal/delivery/http/middleware"
 	"github.com/wangsa/backend/internal/domain"
 	"github.com/wangsa/backend/internal/pkg/response"
 	"github.com/wangsa/backend/internal/usecase"
-	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
@@ -22,6 +22,9 @@ func NewAuthHandler(uc *usecase.AuthUsecase, cfg *config.Config, userRepo domain
 	return &AuthHandler{uc: uc, cfg: cfg, userRepo: userRepo}
 }
 
+// Register endpoint disabled for internal-only application
+// Use seeder command to create admin accounts
+/*
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req domain.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -36,6 +39,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	h.setTokenCookies(c, pair)
 	response.Created(c, domain.AuthResponse{User: *user}, "Registrasi berhasil")
 }
+*/
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest

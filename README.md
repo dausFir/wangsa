@@ -2,6 +2,8 @@
 
 **Platform digital terpadu untuk keluarga besar** — Silsilah interaktif, kas bersama, kalender acara, dan peta domisili.
 
+🔒 **Aplikasi Internal** — Tanpa registrasi publik, akses terbatas untuk anggota keluarga terpilih.
+
 ---
 
 ## 🧰 Tech Stack
@@ -111,11 +113,24 @@ docker rm -f wangsa-db
 docker logs wangsa-db
 ```
 
-### 3. Setup environment
+### 3. Setup environment dan akun admin
 
 ```bash
 cp backend/.env.example backend/.env
 # Edit .env jika perlu — default sudah cocok untuk setup di atas
+
+# Buat akun superadmin default
+make seed-admin
+```
+
+**Kredensial Default Superadmin:**
+- 📧 **Email:** `admin@wangsa.internal`  
+- 🔑 **Password:** `WangsaAdmin2024!`
+- ⚠️ **Wajib ganti password** setelah login pertama
+
+**Shortcut untuk setup lengkap:**
+```bash
+make db-setup  # = db-create + seed-admin sekaligus
 ```
 
 ### 4. Jalankan
@@ -242,6 +257,8 @@ wangsa/
 make help          # Semua commands
 make install       # Install Go + npm dependencies
 make db-create     # Buat database PostgreSQL lokal
+make seed-admin    # Buat akun superadmin default
+make db-setup      # Setup lengkap: database + admin (recommended)
 make db-reset      # Reset database lokal
 make dev-backend   # Jalankan backend (port 8080)
 make dev-frontend  # Jalankan frontend (port 5173)
@@ -255,8 +272,10 @@ make clean         # Hapus build artifacts
 
 ## 🛡️ Security Notes
 
+- **Aplikasi Internal:** Registrasi publik dinonaktifkan, gunakan seeder untuk membuat akun admin
 - `JWT_SECRET` minimal 32 karakter — server **tidak akan start** jika kurang
 - `PRODUCTION=true` mengaktifkan `Secure` flag pada cookie (wajib HTTPS)
 - Semua delete adalah **soft delete** — data tidak hilang permanen
 - Setiap perubahan data terekam di tabel `audit_log`
 - `version` field di semua tabel mendukung optimistic locking
+- **Ganti password default** superadmin setelah deployment pertama

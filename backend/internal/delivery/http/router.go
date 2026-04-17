@@ -3,25 +3,25 @@ package http
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/wangsa/backend/config"
 	"github.com/wangsa/backend/internal/delivery/http/handler"
 	"github.com/wangsa/backend/internal/delivery/http/middleware"
 	jwtutil "github.com/wangsa/backend/internal/pkg/jwt"
-	"github.com/jmoiron/sqlx"
-	"github.com/gin-gonic/gin"
 )
 
 type Router struct {
-	engine         *gin.Engine
-	cfg            *config.Config
-	jm             *jwtutil.Manager
-	db             *sqlx.DB
-	authHandler    *handler.AuthHandler
-	familyHandler  *handler.FamilyHandler
-	kasHandler     *handler.KasHandler
-	addressHandler *handler.AddressHandler
-	eventHandler   *handler.EventHandler
-	uploadHandler    *handler.UploadHandler
+	engine          *gin.Engine
+	cfg             *config.Config
+	jm              *jwtutil.Manager
+	db              *sqlx.DB
+	authHandler     *handler.AuthHandler
+	familyHandler   *handler.FamilyHandler
+	kasHandler      *handler.KasHandler
+	addressHandler  *handler.AddressHandler
+	eventHandler    *handler.EventHandler
+	uploadHandler   *handler.UploadHandler
 	attendeeHandler *handler.AttendeeHandler
 }
 
@@ -41,19 +41,19 @@ func NewRouter(
 		gin.SetMode(gin.ReleaseMode)
 	}
 	engine := gin.New()
-	engine.Use(gin.Recovery())      // panic recovery — always keep
+	engine.Use(gin.Recovery())             // panic recovery — always keep
 	engine.Use(middleware.RequestLogger()) // structured JSON/text logger
 
 	r := &Router{
-		engine:         engine,
-		cfg:            cfg,
-		jm:             jm,
-		db:             db,
-		authHandler:    auth,
-		familyHandler:  family,
-		kasHandler:     kas,
-		addressHandler: address,
-		eventHandler:   event,
+		engine:          engine,
+		cfg:             cfg,
+		jm:              jm,
+		db:              db,
+		authHandler:     auth,
+		familyHandler:   family,
+		kasHandler:      kas,
+		addressHandler:  address,
+		eventHandler:    event,
 		uploadHandler:   upload,
 		attendeeHandler: attendee,
 	}
@@ -83,9 +83,10 @@ func (r *Router) registerRoutes() {
 	// ── Public ────────────────────────────────────────────────
 	auth := api.Group("/auth")
 	{
-		auth.POST("/register", middleware.RateLimitRegister(), r.authHandler.Register)
-		auth.POST("/login",    middleware.RateLimitLogin(),    r.authHandler.Login)
-		auth.POST("/refresh",  r.authHandler.Refresh)
+		// Registration disabled - use seeder for admin account creation
+		// auth.POST("/register", middleware.RateLimitRegister(), r.authHandler.Register)
+		auth.POST("/login", middleware.RateLimitLogin(), r.authHandler.Login)
+		auth.POST("/refresh", r.authHandler.Refresh)
 	}
 
 	// ── Protected (JWT required) ───────────────────────────────

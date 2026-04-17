@@ -33,6 +33,11 @@ db-reset: ## Drop and recreate local development database
 	dropdb --if-exists wangsa
 	$(MAKE) db-create
 
+seed-admin: ## Create default superadmin account
+	cd backend && go run ./cmd/seeder/main.go -create-admin
+
+db-setup: db-create seed-admin ## Complete database setup (create + seed admin)
+
 clean: ## Remove build artifacts
 	rm -f backend/wangsa-server
 	rm -rf frontend/dist
