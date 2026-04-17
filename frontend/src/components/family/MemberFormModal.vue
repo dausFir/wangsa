@@ -128,6 +128,143 @@
                 </div>
               </div>
 
+              <!-- ── Address section ── -->
+              <div class="pt-4 border-t border-warm-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-sm font-semibold text-navy flex items-center gap-2">
+                    🏠 Alamat Tempat Tinggal
+                    <span v-if="memberAddresses.length > 0" class="badge-gray text-xs">{{ memberAddresses.length }} alamat</span>
+                  </h4>
+                  <button 
+                    type="button"
+                    @click="showAddressForm = !showAddressForm"
+                    class="text-xs text-terra hover:text-terra/80 font-medium flex items-center gap-1"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" :d="showAddressForm ? 'M19 9l-7 7-7-7' : 'M12 4v16m8-8H4'"/>
+                    </svg>
+                    {{ showAddressForm ? 'Sembunyikan' : 'Tambah Alamat' }}
+                  </button>
+                </div>
+                
+                <!-- Existing addresses -->
+                <div v-if="memberAddresses.length > 0" class="space-y-2 mb-4">
+                  <div 
+                    v-for="addr in memberAddresses" 
+                    :key="addr.id"
+                    class="flex items-center justify-between p-3 bg-warm-gray-50 rounded-lg text-sm border border-warm-gray-100"
+                  >
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="font-medium text-navy">{{ addr.label }}</span>
+                        <span v-if="addr.is_current" class="badge-green text-xs">Aktif</span>
+                      </div>
+                      <p class="text-warm-gray-600 text-xs">
+                        {{ [addr.street, addr.city, addr.province].filter(Boolean).join(', ') }}
+                      </p>
+                    </div>
+                    <div class="flex gap-1">
+                      <button
+                        type="button"
+                        @click="editAddress(addr)"
+                        class="text-warm-gray-400 hover:text-navy text-xs p-1 rounded"
+                        title="Edit alamat"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        @click="deleteAddress(addr.id)"
+                        class="text-red-400 hover:text-red-600 text-xs p-1 rounded"
+                        title="Hapus alamat"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- No addresses message for existing member -->
+                <div v-if="isEdit && memberAddresses.length === 0 && !showAddressForm" class="text-center py-4 text-warm-gray-400 text-sm">
+                  <p>🏠 Anggota ini belum memiliki alamat.</p>
+                  <p class="text-xs mt-1">Klik "Tambah Alamat" untuk menambah tempat tinggal.</p>
+                </div>
+
+                <!-- Add/Edit address form -->
+                <div v-if="showAddressForm" class="space-y-3 p-4 bg-warm-gray-50 rounded-lg border border-warm-gray-200">
+                  <div class="flex items-center gap-2 text-xs text-warm-gray-600 mb-2">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ isEdit ? 'Edit alamat anggota keluarga' : 'Alamat akan disimpan setelah anggota dibuat' }}
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="form-label text-xs">Label <span class="text-terra">*</span></label>
+                      <input v-model="addressForm.label" class="form-input text-sm" placeholder="Rumah" required />
+                    </div>
+                    <div class="flex items-center gap-2 pt-6">
+                      <input v-model="addressForm.is_current" type="checkbox" id="addr_current" class="w-4 h-4 accent-terra rounded" />
+                      <label for="addr_current" class="text-xs font-medium text-navy cursor-pointer">Alamat aktif</label>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label class="form-label text-xs">Alamat Jalan</label>
+                    <input v-model="addressForm.street" class="form-input text-sm" placeholder="Jl. Merdeka No. 17" />
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="form-label text-xs">Kota <span class="text-terra">*</span></label>
+                      <input v-model="addressForm.city" class="form-input text-sm" placeholder="Jakarta, Bandung, Surabaya..." required />
+                    </div>
+                    <div>
+                      <label class="form-label text-xs">Provinsi</label>
+                      <input v-model="addressForm.province" class="form-input text-sm" placeholder="DKI Jakarta, Jawa Barat..." />
+                    </div>
+                  </div>
+                  
+                  <!-- Coordinates for map -->
+                  <div class="border border-warm-gray-200 rounded p-3 bg-white">
+                    <div class="flex items-center justify-between mb-2">
+                      <label class="text-xs font-medium text-navy">📍 Koordinat (opsional)</label>
+                      <button
+                        type="button"
+                        @click="findMemberAddressCoordinates"
+                        :disabled="!addressForm.city || addressGeocoding"
+                        class="text-xs text-terra hover:text-terra/80 disabled:opacity-50"
+                      >
+                        {{ addressGeocoding ? 'Mencari...' : '🔍 Cari Otomatis' }}
+                      </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                      <input v-model.number="addressForm.latitude" type="number" step="any" class="form-input text-xs" placeholder="Latitude" />
+                      <input v-model.number="addressForm.longitude" type="number" step="any" class="form-input text-xs" placeholder="Longitude" />
+                    </div>
+                    
+                    <p class="text-xs text-warm-gray-500 mt-1">
+                      Dibutuhkan agar muncul di peta domisili
+                    </p>
+                  </div>
+                  
+                  <div class="flex gap-2 pt-2">
+                    <button type="button" @click="saveAddress" class="btn-secondary text-sm flex-1">
+                      {{ editingAddress ? 'Update Alamat' : 'Simpan Alamat' }}
+                    </button>
+                    <button type="button" @click="cancelAddressForm" class="btn-ghost text-sm px-3">
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div v-if="error" class="form-error">
                 <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -177,6 +314,21 @@ const photoUploading = ref(false)
 const photoError     = ref('')
 const pendingDelete  = ref(false)  // user clicked "Hapus" before saving
 
+// Address handling
+const showAddressForm = ref(false)
+const memberAddresses = ref([])
+const editingAddress = ref(null)
+const addressGeocoding = ref(false)
+const addressForm = ref({
+  label: 'Rumah',
+  street: '',
+  city: '',
+  province: '',
+  latitude: null,
+  longitude: null,
+  is_current: true
+})
+
 const isEdit = computed(() => !!props.member)
 
 const eligibleParents = computed(() =>
@@ -198,7 +350,7 @@ const previewInitials = computed(() =>
     .split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2)
 )
 
-watch(() => props.member, (m) => {
+watch(() => props.member, async (m) => {
   if (m) {
     form.value = {
       full_name:   m.full_name   ?? '',
@@ -211,12 +363,16 @@ watch(() => props.member, (m) => {
       notes:       m.notes       ?? null,
     }
     photoPreview.value = sanitizePhotoUrl(m.photo_url) ?? null
+    await fetchMemberAddresses(m.id)
   } else {
-    form.value     = blankForm()
+    form.value = blankForm()
     photoPreview.value = null
+    memberAddresses.value = []
   }
-  photoFile.value   = null
+  photoFile.value = null
   pendingDelete.value = false
+  showAddressForm.value = false
+  resetAddressForm()
   setTimeout(() => setInitial(form.value), 0)
 }, { immediate: true })
 
@@ -253,6 +409,198 @@ function removePhoto() {
   pendingDelete.value = !!props.member?.photo_url  // only need API call if was saved
 }
 
+// ── Address handling ───────────────────────────────────────────────────────
+
+async function fetchMemberAddresses(memberId) {
+  if (!memberId) return
+  try {
+    const { data } = await api.get('/addresses')
+    memberAddresses.value = (data.data || []).filter(addr => addr.family_member_id === memberId)
+  } catch (e) {
+    console.error('Failed to fetch member addresses:', e)
+  }
+}
+
+function resetAddressForm() {
+  addressForm.value = {
+    label: 'Rumah',
+    street: '',
+    city: '',
+    province: '',
+    latitude: null,
+    longitude: null,
+    is_current: true
+  }
+  editingAddress.value = null
+  addressGeocoding.value = false
+}
+
+function editAddress(addr) {
+  addressForm.value = {
+    label: addr.label || 'Rumah',
+    street: addr.street || '',
+    city: addr.city || '',
+    province: addr.province || '',
+    latitude: addr.latitude || null,
+    longitude: addr.longitude || null,
+    is_current: addr.is_current || false
+  }
+  editingAddress.value = addr
+  addressGeocoding.value = false
+  showAddressForm.value = true
+}
+
+async function findMemberAddressCoordinates() {
+  if (!addressForm.value.city) {
+    toast.error('Isi kota terlebih dahulu')
+    return
+  }
+
+  addressGeocoding.value = true
+
+  try {
+    // Strategy 1: Try detailed address first
+    let result = await tryMemberGeocode([
+      addressForm.value.street,
+      addressForm.value.city,
+      addressForm.value.province,
+      'Indonesia'
+    ].filter(Boolean))
+
+    // Strategy 2: Fallback to city + province only
+    if (!result && addressForm.value.province) {
+      result = await tryMemberGeocode([addressForm.value.city, addressForm.value.province, 'Indonesia'])
+    }
+
+    // Strategy 3: Fallback to city only
+    if (!result) {
+      result = await tryMemberGeocode([addressForm.value.city, 'Indonesia'])
+    }
+
+    if (result) {
+      addressForm.value.latitude = parseFloat(result.lat)
+      addressForm.value.longitude = parseFloat(result.lon)
+      
+      toast.success('✅ Koordinat berhasil ditemukan!')
+    } else {
+      toast.error(`Lokasi "${addressForm.value.city}" tidak ditemukan. Coba gunakan nama kota yang lebih umum.`)
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error)
+    toast.error('Gagal mencari koordinat. Silakan coba lagi.')
+  } finally {
+    addressGeocoding.value = false
+  }
+}
+
+async function tryMemberGeocode(addressParts) {
+  const searchQuery = addressParts.join(', ')
+  console.log('🔍 Searching member address:', searchQuery)
+  
+  try {
+    // Try with Indonesia country code first
+    let response = await fetch(
+      `https://nominatim.openstreetmap.org/search?` + 
+      `format=json&q=${encodeURIComponent(searchQuery)}&limit=3&countrycodes=id&addressdetails=1`,
+      {
+        headers: {
+          'User-Agent': 'WangsaApp/1.0 (Family Tree App)'
+        }
+      }
+    )
+    
+    if (!response.ok) throw new Error('Network error')
+    
+    let data = await response.json()
+    
+    // If no results with country code, try without it
+    if (!data || data.length === 0) {
+      response = await fetch(
+        `https://nominatim.openstreetmap.org/search?` + 
+        `format=json&q=${encodeURIComponent(searchQuery)}&limit=3&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'WangsaApp/1.0 (Family Tree App)'
+          }
+        }
+      )
+      
+      if (response.ok) {
+        data = await response.json()
+        
+        // Filter for Indonesia manually
+        data = data.filter(item => 
+          item.display_name.toLowerCase().includes('indonesia') ||
+          item.address?.country_code === 'id' ||
+          item.address?.country === 'Indonesia'
+        )
+      }
+    }
+    
+    return data && data.length > 0 ? data[0] : null
+  } catch (error) {
+    console.error('Member geocoding request failed:', error)
+    return null
+  }
+}
+
+async function saveAddress() {
+  if (!addressForm.value.city) {
+    toast.error('Kota wajib diisi')
+    return
+  }
+
+  try {
+    const payload = {
+      family_member_id: props.member?.id || null,
+      label: addressForm.value.label,
+      street: addressForm.value.street || null,
+      city: addressForm.value.city,
+      province: addressForm.value.province || null,
+      country: 'Indonesia',
+      is_current: addressForm.value.is_current,
+      latitude: addressForm.value.latitude ?? null,
+      longitude: addressForm.value.longitude ?? null
+    }
+
+    if (editingAddress.value) {
+      await api.put(`/addresses/${editingAddress.value.id}`, payload)
+      toast.success('Alamat berhasil diperbarui')
+    } else {
+      await api.post('/addresses', payload)
+      toast.success('Alamat berhasil ditambahkan')
+    }
+
+    if (props.member?.id) {
+      await fetchMemberAddresses(props.member.id)
+    }
+    cancelAddressForm()
+  } catch (e) {
+    toast.error(e.response?.data?.error ?? 'Gagal menyimpan alamat')
+  }
+}
+
+function cancelAddressForm() {
+  showAddressForm.value = false
+  addressGeocoding.value = false
+  resetAddressForm()
+}
+
+async function deleteAddress(addressId) {
+  if (!confirm('Hapus alamat ini?')) return
+  
+  try {
+    await api.delete(`/addresses/${addressId}`)
+    toast.success('Alamat berhasil dihapus')
+    
+    if (props.member?.id) {
+      await fetchMemberAddresses(props.member.id)
+    }
+  } catch (e) {
+    toast.error(e.response?.data?.error ?? 'Gagal menghapus alamat')
+  }
+}
+
 // ── Submit ──────────────────────────────────────────────────────────────────
 
 async function handleSubmit() {
@@ -283,7 +631,6 @@ async function handleSubmit() {
         await api.post(`/family/members/${memberId}/photo`, fd, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
-        toast.success(isEdit.value ? 'Data & foto berhasil diperbarui' : 'Anggota berhasil ditambahkan')
       } catch (photoErr) {
         // Member saved OK but photo failed — warn, don't block
         toast.error('Data disimpan, tapi gagal upload foto: ' + (photoErr.response?.data?.error ?? 'Error tidak diketahui'))
@@ -295,10 +642,29 @@ async function handleSubmit() {
       try {
         await api.delete(`/family/members/${memberId}/photo`)
       } catch { /* non-fatal */ }
-      toast.success(isEdit.value ? 'Data anggota diperbarui' : 'Anggota berhasil ditambahkan')
-    } else {
-      toast.success(isEdit.value ? 'Data anggota berhasil diperbarui' : 'Anggota keluarga berhasil ditambahkan')
     }
+
+    // 4. Save address if form is filled and member was just created
+    if (!isEdit.value && memberId && showAddressForm.value && addressForm.value.city) {
+      try {
+        const addressPayload = {
+          family_member_id: memberId,
+          label: addressForm.value.label,
+          street: addressForm.value.street || null,
+          city: addressForm.value.city,
+          province: addressForm.value.province || null,
+          country: 'Indonesia',
+          is_current: addressForm.value.is_current,
+          latitude: addressForm.value.latitude ?? null,
+          longitude: addressForm.value.longitude ?? null
+        }
+        await api.post('/addresses', addressPayload)
+      } catch (addrErr) {
+        console.error('Failed to save address:', addrErr)
+      }
+    }
+
+    toast.success(isEdit.value ? 'Data anggota berhasil diperbarui' : 'Anggota keluarga berhasil ditambahkan')
 
     // Refresh tree to show updated photo
     await Promise.all([family.fetchTree(), family.fetchMembers()])
