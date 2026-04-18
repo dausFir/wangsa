@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS events (
     is_recurring BOOLEAN      NOT NULL DEFAULT FALSE,
     recur_rule   TEXT,
     color        TEXT         NOT NULL DEFAULT '#CC6649',
+    notes        TEXT,
 
     -- audit
     created_by   BIGINT       NOT NULL REFERENCES users(id),
@@ -166,6 +167,30 @@ CREATE TABLE IF NOT EXISTS event_attendees (
 
 CREATE INDEX IF NOT EXISTS idx_events_start      ON events(start_at)   WHERE is_deleted = FALSE;
 CREATE INDEX IF NOT EXISTS idx_events_is_deleted ON events(is_deleted);
+
+-- ============================================================
+-- NOTES MODULE
+-- ============================================================
+CREATE TABLE IF NOT EXISTS notes (
+    id          BIGSERIAL    PRIMARY KEY,
+    title       TEXT         NOT NULL,
+    content     TEXT         NOT NULL,
+    category    TEXT,
+    is_pinned   BOOLEAN      NOT NULL DEFAULT FALSE,
+
+    -- audit
+    created_by  BIGINT       REFERENCES users(id) ON DELETE SET NULL,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_by  BIGINT       REFERENCES users(id) ON DELETE SET NULL,
+    updated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    version     INTEGER      NOT NULL DEFAULT 1,
+    is_deleted  BOOLEAN      NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notes_category    ON notes(category)    WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_notes_is_pinned   ON notes(is_pinned)   WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_notes_updated_at  ON notes(updated_at)  WHERE is_deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_notes_is_deleted  ON notes(is_deleted);
 
 -- ============================================================
 -- AUDIT LOG TABLE

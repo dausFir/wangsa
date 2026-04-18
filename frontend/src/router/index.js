@@ -24,6 +24,7 @@ const routes = [
       { path: 'kas',      name: 'Kas',       component: () => import('@/views/KasView.vue'),         meta: { title: 'Kas Keluarga' } },
       { path: 'peta',     name: 'Peta',      component: () => import('@/views/PetaView.vue'),        meta: { title: 'Peta Domisili' } },
       { path: 'kalender', name: 'Kalender',  component: () => import('@/views/KalenderView.vue'),    meta: { title: 'Kalender Acara' } },
+      { path: 'catatan',  name: 'Notes',     component: () => import('@/views/NotesView.vue'),       meta: { title: 'Catatan Keluarga' } },
     ]
   },
   { path: '/:pathMatch(.*)*', redirect: '/' }

@@ -266,6 +266,12 @@
               <span>{{ selectedEvent.attendee_count }} orang hadir</span>
             </div>
 
+            <!-- Notes -->
+            <div v-if="selectedEvent.notes" class="border-t border-warm-gray-100 pt-4">
+              <p class="font-medium text-navy mb-2 text-sm">Catatan / Notulensi:</p>
+              <div class="prose prose-sm max-w-none text-warm-gray-600" v-html="selectedEvent.notes"></div>
+            </div>
+
             <!-- RSVP Section -->
             <div class="border-t border-warm-gray-100 pt-4">
               <div class="flex items-center gap-2 mb-3">
@@ -359,6 +365,15 @@
               <input v-model="eForm.is_recurring" type="checkbox" id="ev_recurring" class="w-4 h-4 accent-terra" />
               <label for="ev_recurring" class="text-sm font-medium text-navy cursor-pointer">Acara berulang tahunan</label>
             </div>
+            
+            <!-- Notes Section -->
+            <div>
+              <RichTextEditor
+                v-model="eForm.notes"
+                label="Catatan / Notulensi"
+                placeholder="Tulis catatan rapat, notulensi, atau informasi tambahan..."
+              />
+            </div>
 
             <div v-if="formError" class="form-error">{{ formError }}</div>
 
@@ -382,6 +397,7 @@ import { useEventsStore } from '@/stores/events.js'
 import { useAuthStore }   from '@/stores/auth.js'
 import { useToast }       from '@/composables/useToast.js'
 import { fmtDateTime }    from '@/utils/format.js'
+import RichTextEditor from '@/components/ui/RichTextEditor.vue'
 import api from '@/api/axios.js'
 
 const eventsStore = useEventsStore()
@@ -403,7 +419,8 @@ const colorPresets = ['#CC6649', '#1E2A38', '#3B82F6', '#10B981', '#8B5CF6', '#F
 
 const blankForm = () => ({
   title: '', description: '', location: '',
-  start_at: '', end_at: '', is_recurring: false, color: '#CC6649'
+  start_at: '', end_at: '', is_recurring: false, color: '#CC6649',
+  notes: ''
 })
 const eForm = ref(blankForm())
 
@@ -601,6 +618,7 @@ function openEdit(event) {
     end_at:       toLocal(event.end_at),
     is_recurring: event.is_recurring,
     color:        event.color ?? '#CC6649',
+    notes:        event.notes ?? '',
   }
   formError.value = ''
   showForm.value  = true
@@ -687,5 +705,65 @@ onMounted(() => {
 
 .calendar-grid::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Prose styling for notes */
+:deep(.prose) {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+:deep(.prose h1) {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1E2A38;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+:deep(.prose h2) {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1E2A38;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+:deep(.prose h3) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E2A38;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+:deep(.prose p) {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+:deep(.prose ul, .prose ol) {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+}
+
+:deep(.prose li) {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+:deep(.prose strong) {
+  color: #1E2A38;
+  font-weight: 600;
+}
+
+:deep(.prose a) {
+  color: #3B82F6;
+  text-decoration: underline;
+}
+
+:deep(.prose a:hover) {
+  color: #2563EB;
 }
 </style>

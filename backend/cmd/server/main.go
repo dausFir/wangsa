@@ -49,32 +49,34 @@ func main() {
 	jm := jwtutil.NewManager(cfg.JWTSecret, cfg.JWTExpiresIn)
 
 	// ── Repositories ─────────────────────────────────────────
-	userRepo     := repository.NewUserRepository(db)
-	refreshRepo  := repository.NewRefreshTokenRepository(db)
-	familyRepo  := repository.NewFamilyRepository(db)
-	kasRepo     := repository.NewKasRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	refreshRepo := repository.NewRefreshTokenRepository(db)
+	familyRepo := repository.NewFamilyRepository(db)
+	kasRepo := repository.NewKasRepository(db)
 	addressRepo := repository.NewAddressRepository(db)
-	eventRepo    := repository.NewEventRepository(db)
+	eventRepo := repository.NewEventRepository(db)
 	attendeeRepo := repository.NewAttendeeRepository(db)
+	noteRepo := repository.NewNoteRepository(db)
 
 	// ── Use Cases ────────────────────────────────────────────
-	authUC   := usecase.NewAuthUsecase(userRepo, refreshRepo, jm)
+	authUC := usecase.NewAuthUsecase(userRepo, refreshRepo, jm)
 	familyUC := usecase.NewFamilyUsecase(familyRepo)
 
 	// ── Handlers ─────────────────────────────────────────────
-	authHandler    := handler.NewAuthHandler(authUC, cfg, userRepo)
-	familyHandler  := handler.NewFamilyHandler(familyUC, familyRepo)
-	kasHandler     := handler.NewKasHandler(kasRepo)
+	authHandler := handler.NewAuthHandler(authUC, cfg, userRepo)
+	familyHandler := handler.NewFamilyHandler(familyUC, familyRepo)
+	kasHandler := handler.NewKasHandler(kasRepo)
 	addressHandler := handler.NewAddressHandler(addressRepo)
-	eventHandler   := handler.NewEventHandler(eventRepo)
-	uploadHandler   := handler.NewUploadHandler(familyRepo)
+	eventHandler := handler.NewEventHandler(eventRepo)
+	uploadHandler := handler.NewUploadHandler(familyRepo)
 	attendeeHandler := handler.NewAttendeeHandler(attendeeRepo, eventRepo)
+	noteHandler := handler.NewNoteHandler(noteRepo)
 
 	// ── HTTP Server ──────────────────────────────────────────
 	// db is passed to router so /health can do a real DB ping
 	router := delivery.NewRouter(cfg, jm, db,
 		authHandler, familyHandler, kasHandler,
-		addressHandler, eventHandler, uploadHandler, attendeeHandler,
+		addressHandler, eventHandler, uploadHandler, attendeeHandler, noteHandler,
 	)
 
 	srv := &http.Server{

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/wangsa/backend/internal/domain"
 	"github.com/wangsa/backend/internal/pkg/response"
-	"github.com/gin-gonic/gin"
 )
 
 type EventHandler struct {
@@ -41,7 +41,7 @@ func parseDateTimeOptional(s string) *time.Time {
 // GET /api/events?from=RFC3339&to=RFC3339
 func (h *EventHandler) List(c *gin.Context) {
 	from := c.Query("from")
-	to   := c.Query("to")
+	to := c.Query("to")
 	events, err := h.repo.FindAll(from, to)
 	if err != nil {
 		response.InternalError(c, err)
@@ -78,6 +78,7 @@ func (h *EventHandler) Create(c *gin.Context) {
 		IsRecurring: req.IsRecurring,
 		RecurRule:   req.RecurRule,
 		Color:       color,
+		Notes:       req.Notes,
 		CreatedBy:   createdBy,
 		UpdatedBy:   createdBy,
 	}
@@ -120,13 +121,14 @@ func (h *EventHandler) Update(c *gin.Context) {
 		return
 	}
 
-	existing.Title       = req.Title
+	existing.Title = req.Title
 	existing.Description = req.Description
-	existing.Location    = req.Location
-	existing.StartAt     = startAt
+	existing.Location = req.Location
+	existing.StartAt = startAt
 	existing.IsRecurring = req.IsRecurring
-	existing.RecurRule   = req.RecurRule
-	existing.UpdatedBy   = contextUserID(c)
+	existing.RecurRule = req.RecurRule
+	existing.Notes = req.Notes
+	existing.UpdatedBy = contextUserID(c)
 	if req.Color != "" {
 		existing.Color = req.Color
 	}

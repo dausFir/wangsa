@@ -77,6 +77,7 @@ const navItems = [
   { name: 'Kas',       to: '/kas',      emoji: '💰' },
   { name: 'Peta',      to: '/peta',     emoji: '🗺️' },
   { name: 'Kalender',  to: '/kalender', emoji: '📅' },
+  { name: 'Catatan',   to: '/catatan',  emoji: '📝' },
 ]
 
 function handleNav(navigate) {

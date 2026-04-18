@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/wangsa/backend/internal/domain"
 	"github.com/jmoiron/sqlx"
+	"github.com/wangsa/backend/internal/domain"
 )
 
 type eventRepository struct{ db *sqlx.DB }
@@ -20,15 +20,15 @@ func (r *eventRepository) Create(e *domain.Event) error {
 	now := time.Now()
 	e.CreatedAt = now
 	e.UpdatedAt = now
-	e.Version   = 1
+	e.Version = 1
 	return r.db.QueryRow(
 		`INSERT INTO events
-		 (title, description, location, start_at, end_at, is_recurring, recur_rule, color,
+		 (title, description, location, start_at, end_at, is_recurring, recur_rule, color, notes,
 		  created_by, created_at, updated_by, updated_at, version, is_deleted)
-		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,FALSE)
+		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,FALSE)
 		 RETURNING id`,
 		e.Title, e.Description, e.Location, e.StartAt, e.EndAt,
-		e.IsRecurring, e.RecurRule, e.Color,
+		e.IsRecurring, e.RecurRule, e.Color, e.Notes,
 		e.CreatedBy, e.CreatedAt, e.CreatedBy, e.UpdatedAt, e.Version,
 	).Scan(&e.ID)
 }
@@ -74,11 +74,11 @@ func (r *eventRepository) Update(e *domain.Event) error {
 	_, err := r.db.Exec(
 		`UPDATE events
 		 SET title=$1, description=$2, location=$3, start_at=$4, end_at=$5,
-		     is_recurring=$6, recur_rule=$7, color=$8,
-		     updated_by=$9, updated_at=$10, version=version+1
-		 WHERE id=$11 AND is_deleted=FALSE`,
+		     is_recurring=$6, recur_rule=$7, color=$8, notes=$9,
+		     updated_by=$10, updated_at=$11, version=version+1
+		 WHERE id=$12 AND is_deleted=FALSE`,
 		e.Title, e.Description, e.Location, e.StartAt, e.EndAt,
-		e.IsRecurring, e.RecurRule, e.Color,
+		e.IsRecurring, e.RecurRule, e.Color, e.Notes,
 		e.UpdatedBy, e.UpdatedAt, e.ID,
 	)
 	return err

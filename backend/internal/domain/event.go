@@ -12,6 +12,7 @@ type Event struct {
 	IsRecurring bool       `db:"is_recurring" json:"is_recurring"`
 	RecurRule   *string    `db:"recur_rule"  json:"recur_rule,omitempty"`
 	Color       string     `db:"color"       json:"color"`
+	Notes       *string    `db:"notes"       json:"notes,omitempty"`
 
 	// audit
 	CreatedBy *int64    `db:"created_by" json:"created_by,omitempty"`
@@ -34,6 +35,7 @@ type CreateEventRequest struct {
 	IsRecurring bool    `json:"is_recurring"`
 	RecurRule   *string `json:"recur_rule"`
 	Color       string  `json:"color"`
+	Notes       *string `json:"notes"`
 }
 
 type EventRepository interface {

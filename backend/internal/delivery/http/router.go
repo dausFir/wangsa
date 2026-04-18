@@ -23,6 +23,7 @@ type Router struct {
 	eventHandler    *handler.EventHandler
 	uploadHandler   *handler.UploadHandler
 	attendeeHandler *handler.AttendeeHandler
+	noteHandler     *handler.NoteHandler
 }
 
 func NewRouter(
@@ -36,6 +37,7 @@ func NewRouter(
 	event *handler.EventHandler,
 	upload *handler.UploadHandler,
 	attendee *handler.AttendeeHandler,
+	note *handler.NoteHandler,
 ) *Router {
 	if cfg.IsProduction {
 		gin.SetMode(gin.ReleaseMode)
@@ -56,6 +58,7 @@ func NewRouter(
 		eventHandler:    event,
 		uploadHandler:   upload,
 		attendeeHandler: attendee,
+		noteHandler:     note,
 	}
 	r.setupCORS()
 	r.registerRoutes()
@@ -158,6 +161,17 @@ func (r *Router) registerRoutes() {
 			events.GET("/:id/attendees", r.attendeeHandler.List)
 			events.PUT("/:id/attendees/:member_id", r.attendeeHandler.Upsert)
 			events.DELETE("/:id/attendees/:member_id", r.attendeeHandler.Remove)
+		}
+
+		// Catatan
+		notes := protected.Group("/notes")
+		{
+			notes.GET("", r.noteHandler.List)
+			notes.GET("/categories", r.noteHandler.ListCategories)
+			notes.GET("/:id", r.noteHandler.Get)
+			notes.POST("", r.noteHandler.Create)
+			notes.PUT("/:id", r.noteHandler.Update)
+			notes.DELETE("/:id", r.noteHandler.Delete)
 		}
 	}
 
