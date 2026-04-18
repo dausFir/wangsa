@@ -22,9 +22,7 @@ func NewAuthHandler(uc *usecase.AuthUsecase, cfg *config.Config, userRepo domain
 	return &AuthHandler{uc: uc, cfg: cfg, userRepo: userRepo}
 }
 
-// Register endpoint disabled for internal-only application
-// Use seeder command to create admin accounts
-/*
+// Register endpoint - enabled for development
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req domain.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,7 +37,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	h.setTokenCookies(c, pair)
 	response.Created(c, domain.AuthResponse{User: *user}, "Registrasi berhasil")
 }
-*/
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req domain.LoginRequest

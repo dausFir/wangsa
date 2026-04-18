@@ -86,8 +86,7 @@ func (r *Router) registerRoutes() {
 	// ── Public ────────────────────────────────────────────────
 	auth := api.Group("/auth")
 	{
-		// Registration disabled - use seeder for admin account creation
-		// auth.POST("/register", middleware.RateLimitRegister(), r.authHandler.Register)
+		auth.POST("/register", middleware.RateLimitRegister(), r.authHandler.Register)
 		auth.POST("/login", middleware.RateLimitLogin(), r.authHandler.Login)
 		auth.POST("/refresh", r.authHandler.Refresh)
 	}

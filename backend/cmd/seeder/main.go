@@ -17,14 +17,16 @@ func main() {
 	var createSuperAdmin = flag.Bool("create-admin", false, "Create default superadmin account")
 	var createSampleEvents = flag.Bool("create-events", false, "Create sample events for testing")
 	var createSampleNotes = flag.Bool("create-notes", false, "Create sample notes for testing")
+	var createSampleFamily = flag.Bool("create-family", false, "Create sample family tree with 3 generations including marriages")
 	flag.Parse()
 
-	if !*createSuperAdmin && !*createSampleEvents && !*createSampleNotes {
+	if !*createSuperAdmin && !*createSampleEvents && !*createSampleNotes && !*createSampleFamily {
 		log.Println("Usage:")
 		log.Println("  go run cmd/seeder/main.go -create-admin     # Create superadmin account")
 		log.Println("  go run cmd/seeder/main.go -create-events    # Create sample events")
 		log.Println("  go run cmd/seeder/main.go -create-notes     # Create sample notes")
-		log.Println("  go run cmd/seeder/main.go -create-admin -create-events -create-notes   # Create all")
+		log.Println("  go run cmd/seeder/main.go -create-family    # Create sample family tree (3 generations)")
+		log.Println("  go run cmd/seeder/main.go -create-admin -create-events -create-notes -create-family   # Create all")
 		os.Exit(1)
 	}
 
@@ -47,6 +49,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	eventRepo := repository.NewEventRepository(db)
 	noteRepo := repository.NewNoteRepository(db)
+	familyRepo := repository.NewFamilyRepository(db)
 
 	// Create superadmin
 	if *createSuperAdmin {
@@ -73,6 +76,14 @@ func main() {
 			log.Fatalf("Failed to create sample notes: %v", err)
 		}
 		log.Println("✅ Sample notes created successfully!")
+	}
+
+	// Create sample family tree
+	if *createSampleFamily {
+		if err := createSampleFamilyData(familyRepo, userRepo); err != nil {
+			log.Fatalf("Failed to create sample family data: %v", err)
+		}
+		log.Println("✅ Sample family tree (3 generations) created successfully!")
 	}
 }
 
@@ -297,6 +308,281 @@ func createSampleNotesData(noteRepo domain.NoteRepository, userRepo domain.UserR
 			log.Printf("✅ Created note: %s", note.Title)
 		}
 	}
+
+	return nil
+}
+
+func createSampleFamilyData(familyRepo domain.FamilyRepository, userRepo domain.UserRepository) error {
+	// Get admin user to use as creator
+	admin, err := userRepo.FindByEmail("admin@wangsa.internal")
+	if err != nil {
+		return err
+	}
+	if admin == nil {
+		log.Println("⚠️  Superadmin not found, creating sample family with user ID 1")
+		admin = &domain.User{ID: 1} // Fallback to ID 1
+	}
+
+	// === GENERATION 1: KAKEK-NENEK ===
+	log.Println("Creating Generation 1: Kakek-Nenek...")
+	
+	kakek := &domain.FamilyMember{
+		FullName:   "Raden Soekarno Wangsa",
+		Nickname:   strPtr("Kakek Karno"),
+		Gender:     "male",
+		BirthDate:  strPtr("1935-08-17"),
+		BirthPlace: strPtr("Yogyakarta"),
+		DeathDate:  strPtr("2015-12-10"),
+		Notes:      strPtr("Pendiri keluarga Wangsa. Veteran kemerdekaan."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+	
+	nenek := &domain.FamilyMember{
+		FullName:   "Siti Fatimah Wangsa",
+		Nickname:   strPtr("Nenek Fatim"),
+		Gender:     "female",
+		BirthDate:  strPtr("1940-04-21"),
+		BirthPlace: strPtr("Solo"),
+		Notes:      strPtr("Ibu rumah tangga yang sangat disegani keluarga."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	if err := familyRepo.CreateMember(kakek); err != nil {
+		return err
+	}
+	log.Printf("✅ Created: %s (ID: %d)", kakek.FullName, kakek.ID)
+
+	if err := familyRepo.CreateMember(nenek); err != nil {
+		return err
+	}
+	log.Printf("✅ Created: %s (ID: %d)", nenek.FullName, nenek.ID)
+
+	// Marriage Kakek-Nenek
+	marriage1 := &domain.Marriage{
+		HusbandID:    kakek.ID,
+		WifeID:       nenek.ID,
+		MarriageDate: strPtr("1960-05-15"),
+		Notes:        strPtr("Pernikahan sederhana di rumah"),
+		CreatedBy:    int64Ptr(admin.ID),
+		UpdatedBy:    int64Ptr(admin.ID),
+	}
+	if err := familyRepo.CreateMarriage(marriage1); err != nil {
+		return err
+	}
+	log.Printf("✅ Created marriage: %s & %s", kakek.FullName, nenek.FullName)
+
+	// === GENERATION 2: ANAK-ANAK KAKEK-NENEK ===
+	log.Println("\nCreating Generation 2: Anak-anak...")
+	
+	// Anak pertama - Budi (laki-laki)
+	budi := &domain.FamilyMember{
+		FullName:   "Budi Santoso Wangsa",
+		Nickname:   strPtr("Pak Budi"),
+		Gender:     "male",
+		BirthDate:  strPtr("1962-03-10"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(kakek.ID),
+		Notes:      strPtr("Anak sulung. Bekerja sebagai guru."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Istri Budi - Sari
+	sari := &domain.FamilyMember{
+		FullName:   "Sari Lestari Wangsa",
+		Nickname:   strPtr("Bu Sari"),
+		Gender:     "female",
+		BirthDate:  strPtr("1965-07-20"),
+		BirthPlace: strPtr("Bandung"),
+		Notes:      strPtr("Istri Budi. Ibu rumah tangga yang aktif di PKK."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Anak kedua - Ari (laki-laki)
+	ari := &domain.FamilyMember{
+		FullName:   "Ari Wijaya Wangsa",
+		Nickname:   strPtr("Mas Ari"),
+		Gender:     "male",
+		BirthDate:  strPtr("1964-11-05"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(kakek.ID),
+		Notes:      strPtr("Anak kedua. Pengusaha bidang kuliner."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Istri Ari - Dewi
+	dewi := &domain.FamilyMember{
+		FullName:   "Dewi Anggraeni Wangsa",
+		Nickname:   strPtr("Bu Dewi"),
+		Gender:     "female",
+		BirthDate:  strPtr("1968-01-12"),
+		BirthPlace: strPtr("Jakarta"),
+		Notes:      strPtr("Istri Ari. Dokter di RS Sardjito."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Anak ketiga - Maya (perempuan)
+	maya := &domain.FamilyMember{
+		FullName:   "Maya Sari Wangsa",
+		Nickname:   strPtr("Tante Maya"),
+		Gender:     "female",
+		BirthDate:  strPtr("1967-09-18"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(kakek.ID),
+		Notes:      strPtr("Anak bungsu. Belum menikah, bekerja sebagai dosen."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Create generation 2
+	gen2Members := []*domain.FamilyMember{budi, sari, ari, dewi, maya}
+	for _, member := range gen2Members {
+		if err := familyRepo.CreateMember(member); err != nil {
+			return err
+		}
+		log.Printf("✅ Created: %s (ID: %d)", member.FullName, member.ID)
+	}
+
+	// Marriages Generation 2
+	marriageBudiSari := &domain.Marriage{
+		HusbandID:    budi.ID,
+		WifeID:       sari.ID,
+		MarriageDate: strPtr("1987-12-25"),
+		Notes:        strPtr("Pernikahan di Gereja Santa Maria Yogyakarta"),
+		CreatedBy:    int64Ptr(admin.ID),
+		UpdatedBy:    int64Ptr(admin.ID),
+	}
+
+	marriageAriDewi := &domain.Marriage{
+		HusbandID:    ari.ID,
+		WifeID:       dewi.ID,
+		MarriageDate: strPtr("1992-06-10"),
+		Notes:        strPtr("Resepsi di Hotel Tentrem Yogyakarta"),
+		CreatedBy:    int64Ptr(admin.ID),
+		UpdatedBy:    int64Ptr(admin.ID),
+	}
+
+	if err := familyRepo.CreateMarriage(marriageBudiSari); err != nil {
+		return err
+	}
+	log.Printf("✅ Created marriage: %s & %s", budi.FullName, sari.FullName)
+
+	if err := familyRepo.CreateMarriage(marriageAriDewi); err != nil {
+		return err
+	}
+	log.Printf("✅ Created marriage: %s & %s", ari.FullName, dewi.FullName)
+
+	// === GENERATION 3: CUCU-CUCU ===
+	log.Println("\nCreating Generation 3: Cucu-cucu...")
+
+	// Anak-anak Budi & Sari
+	andi := &domain.FamilyMember{
+		FullName:   "Andi Prasetyo Wangsa",
+		Nickname:   strPtr("Andi"),
+		Gender:     "male",
+		BirthDate:  strPtr("1990-02-14"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(budi.ID),
+		Notes:      strPtr("Anak sulung Budi. Software Engineer di startup Jakarta."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	rini := &domain.FamilyMember{
+		FullName:   "Rini Handayani Wangsa",
+		Nickname:   strPtr("Rini"),
+		Gender:     "female",
+		BirthDate:  strPtr("1992-08-30"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(budi.ID),
+		Notes:      strPtr("Anak kedua Budi. Graphic Designer freelance."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	doni := &domain.FamilyMember{
+		FullName:   "Doni Kurniawan Wangsa",
+		Nickname:   strPtr("Doni"),
+		Gender:     "male",
+		BirthDate:  strPtr("1995-12-08"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(budi.ID),
+		Notes:      strPtr("Anak bungsu Budi. Mahasiswa teknik UGM."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Anak-anak Ari & Dewi
+	lina := &domain.FamilyMember{
+		FullName:   "Lina Permata Wangsa",
+		Nickname:   strPtr("Lina"),
+		Gender:     "female",
+		BirthDate:  strPtr("1995-05-22"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(ari.ID),
+		Notes:      strPtr("Anak sulung Ari. Fresh graduate kedokteran."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	fajar := &domain.FamilyMember{
+		FullName:   "Fajar Ramadhan Wangsa",
+		Nickname:   strPtr("Fajar"),
+		Gender:     "male",
+		BirthDate:  strPtr("1998-03-17"),
+		BirthPlace: strPtr("Yogyakarta"),
+		ParentID:   int64Ptr(ari.ID),
+		Notes:      strPtr("Anak kedua Ari. Mahasiswa bisnis UGM."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Pacar/Tunangan dari Generation 3
+	nina := &domain.FamilyMember{
+		FullName:   "Nina Sari Putri",
+		Nickname:   strPtr("Nina"),
+		Gender:     "female",
+		BirthDate:  strPtr("1991-11-25"),
+		BirthPlace: strPtr("Surabaya"),
+		Notes:      strPtr("Tunangan Andi. UX Designer di perusahaan yang sama."),
+		CreatedBy:  int64Ptr(admin.ID),
+		UpdatedBy:  int64Ptr(admin.ID),
+	}
+
+	// Create generation 3
+	gen3Members := []*domain.FamilyMember{andi, rini, doni, lina, fajar, nina}
+	for _, member := range gen3Members {
+		if err := familyRepo.CreateMember(member); err != nil {
+			return err
+		}
+		log.Printf("✅ Created: %s (ID: %d)", member.FullName, member.ID)
+	}
+
+	// Marriage Generation 3 (Tunangan Andi & Nina)
+	marriageAndiNina := &domain.Marriage{
+		HusbandID:    andi.ID,
+		WifeID:       nina.ID,
+		MarriageDate: strPtr("2024-11-30"), // Planned wedding
+		Notes:        strPtr("Pernikahan akan diselenggarakan di Yogyakarta (masih planning)"),
+		CreatedBy:    int64Ptr(admin.ID),
+		UpdatedBy:    int64Ptr(admin.ID),
+	}
+
+	if err := familyRepo.CreateMarriage(marriageAndiNina); err != nil {
+		return err
+	}
+	log.Printf("✅ Created marriage: %s & %s (planned)", andi.FullName, nina.FullName)
+
+	log.Println("\n🏠 Family Tree Summary:")
+	log.Println("Generation 1: Kakek Karno & Nenek Fatim")
+	log.Println("Generation 2: Pak Budi & Bu Sari, Mas Ari & Bu Dewi, Tante Maya")
+	log.Println("Generation 3: Andi & Nina (engaged), Rini, Doni, Lina, Fajar")
+	log.Printf("Total: %d family members, %d marriages", len(gen2Members)+len(gen3Members)+2, 3)
 
 	return nil
 }

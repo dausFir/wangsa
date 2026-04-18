@@ -141,48 +141,15 @@
       <button @click="openCreate" class="btn-primary">Tambah Anggota Pertama</button>
     </div>
 
-    <!-- ── Tree canvas with zoom/pan ── -->
-    <div v-else class="card p-0 overflow-hidden relative" style="height: 68vh;">
-      <!-- Zoom controls -->
-      <div class="absolute top-3 right-3 z-10 flex gap-1.5">
-        <button @click="zoomPan.fitToScreen()" class="zoom-btn" title="Fit ke layar">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-          </svg>
-        </button>
-        <button @click="zoomPan.resetZoom()" class="zoom-btn" title="Reset zoom">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-        </button>
-        <div class="zoom-btn no-hover text-xs font-medium tabular-nums" style="min-width:44px; text-align:center; cursor:default;">
-          {{ Math.round(zoomPan.state.scale * 100) }}%
-        </div>
-      </div>
-
-      <!-- Hint text -->
-      <div class="absolute bottom-3 left-3 z-10 text-xs text-warm-gray-400 pointer-events-none select-none hidden sm:block">
-        Scroll untuk zoom · Drag untuk geser · Pinch di mobile
-      </div>
-
-      <!-- Pannable canvas -->
-      <div
-        ref="treeContainer"
-        class="w-full h-full select-none"
-        style="cursor: grab; overflow: hidden;"
-      >
-        <div ref="treeContent" :style="treeTransform" class="inline-flex gap-16 p-8 min-w-max items-start">
-          <FamilyTreeNode
-            v-for="root in family.tree"
-            :key="root.id"
-            :member="root"
-            :selected-id="selectedMember?.id ?? null"
-            @select="selectedMember = $event"
-            @add-child="openAddChild"
-            @edit="openEdit"
-          />
-        </div>
-      </div>
+    <!-- ── Tree canvas with D3.js interactive visualization ── -->
+    <div v-else class="card p-0 overflow-hidden relative" style="height: 75vh;">
+      <InteractiveFamilyTree
+        :tree-data="family.tree"
+        :selected-member-id="selectedMember?.id"
+        @member-select="selectedMember = $event"
+        @member-edit="openEdit"
+        @add-child="openAddChild"
+      />
     </div>
 
     <!-- ── Detail panel ── -->
@@ -241,19 +208,14 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { useZoomPan }  from '@/composables/useZoomPan.js'
 import { useFamilyStore } from '@/stores/family.js'
 import { useAuthStore }   from '@/stores/auth.js'
 import { useToast }       from '@/composables/useToast.js'
 import { fmtDate }        from '@/utils/format.js'
-import FamilyTreeNode   from '@/components/family/FamilyTreeNode.vue'
+import InteractiveFamilyTree from '@/components/family/InteractiveFamilyTree.vue'
 import MemberFormModal  from '@/components/family/MemberFormModal.vue'
 
-const family  = useFamilyStore()
-const treeContainer = ref(null)
-const treeContent   = ref(null)
-const zoomPan = useZoomPan()
-const treeTransform = computed(() => zoomPan.transform.value)
+const family = useFamilyStore()
 const auth   = useAuthStore()
 const toast  = useToast()
 
@@ -278,11 +240,21 @@ const isFiltering = computed(() =>
 const filteredMembers = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   return family.members.filter(m => {
-    const matchName   = !q || m.full_name.toLowerCase().includes(q) || (m.nickname ?? '').toLowerCase().includes(q)
+    // Name matching
+    const matchName = !q || m.full_name.toLowerCase().includes(q) || (m.nickname ?? '').toLowerCase().includes(q)
+    
+    // Gender matching
     const matchGender = !filterGender.value || m.gender === filterGender.value
-    const matchStatus = !filterStatus.value ||
-      (filterStatus.value === 'alive'    && !m.death_date) ||
-      (filterStatus.value === 'deceased' && !!m.death_date)
+    
+    // Status matching - fixed logic
+    let matchStatus = true
+    if (filterStatus.value === 'alive') {
+      matchStatus = !m.death_date
+    } else if (filterStatus.value === 'deceased') {
+      matchStatus = !!m.death_date
+    }
+    // If filterStatus.value is empty string (Semua status), matchStatus stays true
+    
     return matchName && matchGender && matchStatus
   })
 })
@@ -333,27 +305,5 @@ async function submitMarriage() {
 
 onMounted(async () => {
   await Promise.all([family.fetchTree(), family.fetchMembers()])
-  // Wait for Vue to render the tree canvas before linking refs
-  await nextTick()
-  zoomPan.containerRef.value = treeContainer.value
-  zoomPan.contentRef.value   = treeContent.value
 })
 </script>
-
-<style scoped>
-.zoom-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: white;
-  border: 0.5px solid #e5e0d8;
-  color: #6b6560;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.zoom-btn:hover:not(.no-hover) { background: #f5f3ef; color: #1a2940; }
-.zoom-btn.no-hover { width: auto; padding: 0 8px; font-size: 12px; }
-</style>

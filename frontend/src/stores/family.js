@@ -12,11 +12,42 @@ export const useFamilyStore = defineStore('family', () => {
     loading.value = true
     error.value   = null
     try {
+      // Fetch members first to ensure we have member data
+      await fetchMembers()
+      
+      // Try to fetch tree structure
       const { data } = await api.get('/family/tree')
       tree.value = data.data ?? []
+      
+      // Fallback: if tree is empty but we have members, use members as tree
+      if (tree.value.length === 0 && members.value.length > 0) {
+        console.warn('Tree endpoint returned empty, using members as fallback')
+        // Find root members (those without parent_id)
+        const rootMembers = members.value.filter(m => !m.parent_id)
+        if (rootMembers.length > 0) {
+          tree.value = rootMembers
+        } else {
+          // If no root members, just use all members as separate trees
+          tree.value = [...members.value]
+        }
+      }
+      
+      console.log(`Loaded ${tree.value.length} root nodes, ${members.value.length} total members`)
     } catch (e) {
+      console.error('Tree fetch error:', e)
       error.value = e.response?.data?.error ?? 'Gagal memuat silsilah'
-      throw e
+      
+      // Try to load just members as fallback
+      try {
+        await fetchMembers()
+        if (members.value.length > 0) {
+          tree.value = members.value.filter(m => !m.parent_id) || [...members.value]
+          console.log('Using members fallback after tree error')
+        }
+      } catch (memberError) {
+        console.error('Members fallback also failed:', memberError)
+        throw e
+      }
     } finally {
       loading.value = false
     }

@@ -93,127 +93,129 @@
     <Teleport to="body">
       <div
         v-if="showForm"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
         style="background: rgba(20,29,39,0.52); backdrop-filter: blur(4px);"
         @mousedown.self="closeForm"
       >
-        <div class="bg-white rounded-2xl shadow-modal w-full max-w-md">
-          <div class="flex items-center justify-between px-6 py-5 border-b border-warm-gray-100">
+        <div class="bg-white rounded-2xl shadow-modal w-full max-w-md max-h-[90vh] flex flex-col my-8">
+          <div class="flex items-center justify-between px-6 py-5 border-b border-warm-gray-100 flex-shrink-0">
             <h3 class="text-lg font-semibold text-navy">{{ editingId ? 'Edit Alamat' : 'Tambah Alamat' }}</h3>
             <button @click="closeForm" class="btn-ghost p-2 -mr-2">✕</button>
           </div>
-          <form @submit.prevent="handleSave" class="px-6 py-5 space-y-4">
-            <div>
-              <label class="form-label">Anggota Keluarga</label>
-              <select v-model="aForm.family_member_id" class="form-input">
-                <option :value="null">Alamat Umum / Tidak terkait anggota</option>
-                <option v-for="member in familyMembers" :key="member.id" :value="member.id">
-                  {{ member.full_name }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <label class="form-label">Label <span class="text-terra">*</span></label>
-              <input v-model="aForm.label" class="form-input" placeholder="Rumah / Kantor / Kos" required />
-            </div>
-            <div>
-              <label class="form-label">Alamat Jalan</label>
-              <input v-model="aForm.street" class="form-input" placeholder="Jl. Merdeka No. 17" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
+          <form @submit.prevent="handleSave" class="flex flex-col flex-1 min-h-0">
+            <div class="px-6 py-5 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label class="form-label">Kota <span class="text-terra">*</span></label>
-                <input v-model="aForm.city" class="form-input" placeholder="Jakarta, Bandung, Surabaya..." required />
-                <p class="text-xs text-warm-gray-500 mt-1">Gunakan nama kota yang umum dikenal</p>
+                <label class="form-label">Anggota Keluarga</label>
+                <select v-model="aForm.family_member_id" class="form-input">
+                  <option :value="null">Alamat Umum / Tidak terkait anggota</option>
+                  <option v-for="member in familyMembers" :key="member.id" :value="member.id">
+                    {{ member.full_name }}
+                  </option>
+                </select>
               </div>
               <div>
-                <label class="form-label">Provinsi</label>
-                <input v-model="aForm.province" class="form-input" placeholder="DKI Jakarta, Jawa Barat..." />
+                <label class="form-label">Label <span class="text-terra">*</span></label>
+                <input v-model="aForm.label" class="form-input" placeholder="Rumah / Kantor / Kos" required />
               </div>
-            </div>
-            
-            <!-- Coordinates Section -->
-            <div class="border border-warm-gray-200 rounded-lg p-4 bg-warm-gray-50/50">
-              <div class="flex items-center justify-between mb-3">
-                <div>
-                  <h5 class="text-sm font-medium text-navy">📍 Koordinat Lokasi</h5>
-                  <p class="text-xs text-warm-gray-500">Diperlukan agar muncul di peta</p>
-                </div>
-                <button
-                  type="button"
-                  @click="findCoordinates"
-                  :disabled="!aForm.city || geocoding"
-                  class="btn-secondary text-xs py-1.5 px-3 disabled:opacity-50"
-                >
-                  <span v-if="geocoding" class="spinner w-3 h-3 border-warm-gray-400 border-t-warm-gray-700 mr-1.5"></span>
-                  {{ geocoding ? 'Mencari...' : '🔍 Cari Otomatis' }}
-                </button>
+              <div>
+                <label class="form-label">Alamat Jalan</label>
+                <input v-model="aForm.street" class="form-input" placeholder="Jl. Merdeka No. 17" />
               </div>
-              
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="form-label text-xs">Latitude</label>
-                  <input v-model.number="aForm.latitude" type="number" step="any" class="form-input text-sm" placeholder="-6.2088" />
+                  <label class="form-label">Kota <span class="text-terra">*</span></label>
+                  <input v-model="aForm.city" class="form-input" placeholder="Jakarta, Bandung, Surabaya..." required />
+                  <p class="text-xs text-warm-gray-500 mt-1">Gunakan nama kota yang umum dikenal</p>
                 </div>
                 <div>
-                  <label class="form-label text-xs">Longitude</label>
-                  <input v-model.number="aForm.longitude" type="number" step="any" class="form-input text-sm" placeholder="106.8456" />
+                  <label class="form-label">Provinsi</label>
+                  <input v-model="aForm.province" class="form-input" placeholder="DKI Jakarta, Jawa Barat..." />
                 </div>
               </div>
               
-              <div v-if="geocodingError" class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
-                {{ geocodingError }}
-                <button
-                  type="button"
-                  @click="showCityList = !showCityList"
-                  class="ml-2 underline hover:no-underline"
-                >
-                  {{ showCityList ? 'Sembunyikan' : 'Lihat daftar kota' }}
-                </button>
+              <!-- Coordinates Section -->
+              <div class="border border-warm-gray-200 rounded-lg p-4 bg-warm-gray-50/50">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h5 class="text-sm font-medium text-navy">📍 Koordinat Lokasi</h5>
+                    <p class="text-xs text-warm-gray-500">Diperlukan agar muncul di peta</p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="findCoordinates"
+                    :disabled="!aForm.city || geocoding"
+                    class="btn-secondary text-xs py-1.5 px-3 disabled:opacity-50"
+                  >
+                    <span v-if="geocoding" class="spinner w-3 h-3 border-warm-gray-400 border-t-warm-gray-700 mr-1.5"></span>
+                    {{ geocoding ? 'Mencari...' : '🔍 Cari Otomatis' }}
+                  </button>
+                </div>
                 
-                <div v-if="showCityList" class="mt-2 p-2 bg-white border border-warm-gray-200 rounded">
-                  <p class="font-medium mb-2">Koordinat kota-kota besar:</p>
-                  <div class="grid grid-cols-2 gap-1 text-xs">
-                    <button
-                      v-for="city in commonCities"
-                      :key="city.name"
-                      @click="useCommonCity(city)"
-                      class="text-left p-1 hover:bg-warm-gray-100 rounded"
-                    >
-                      <strong>{{ city.name }}</strong><br>
-                      <span class="text-warm-gray-500">{{ city.coords }}</span>
-                    </button>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="form-label text-xs">Latitude</label>
+                    <input v-model.number="aForm.latitude" type="number" step="any" class="form-input text-sm" placeholder="-6.2088" />
+                  </div>
+                  <div>
+                    <label class="form-label text-xs">Longitude</label>
+                    <input v-model.number="aForm.longitude" type="number" step="any" class="form-input text-sm" placeholder="106.8456" />
                   </div>
                 </div>
-              </div>
-              
-              <div v-if="!aForm.latitude" class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
-                <p class="text-xs text-amber-700 flex items-center gap-1.5">
-                  <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                  Tanpa koordinat, alamat tidak akan muncul di peta
-                </p>
-              </div>
-              
-              <details class="mt-2">
-                <summary class="text-xs text-warm-gray-500 cursor-pointer hover:text-warm-gray-700">Manual? Lihat cara mendapatkan koordinat</summary>
-                <div class="mt-2 p-2 bg-white border border-warm-gray-200 rounded text-xs text-warm-gray-600 leading-relaxed">
-                  <p><strong>Google Maps:</strong></p>
-                  <p>1. Buka maps.google.com</p>
-                  <p>2. Cari alamat atau klik lokasi di peta</p>
-                  <p>3. Klik kanan → "What's here?"</p>
-                  <p>4. Copy angka koordinat yang muncul</p>
+                
+                <div v-if="geocodingError" class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+                  {{ geocodingError }}
+                  <button
+                    type="button"
+                    @click="showCityList = !showCityList"
+                    class="ml-2 underline hover:no-underline"
+                  >
+                    {{ showCityList ? 'Sembunyikan' : 'Lihat daftar kota' }}
+                  </button>
+                  
+                  <div v-if="showCityList" class="mt-2 p-2 bg-white border border-warm-gray-200 rounded">
+                    <p class="font-medium mb-2">Koordinat kota-kota besar:</p>
+                    <div class="grid grid-cols-2 gap-1 text-xs">
+                      <button
+                        v-for="city in commonCities"
+                        :key="city.name"
+                        @click="useCommonCity(city)"
+                        class="text-left p-1 hover:bg-warm-gray-100 rounded"
+                      >
+                        <strong>{{ city.name }}</strong><br>
+                        <span class="text-warm-gray-500">{{ city.coords }}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </details>
+                
+                <div v-if="!aForm.latitude" class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                  <p class="text-xs text-amber-700 flex items-center gap-1.5">
+                    <svg class="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Tanpa koordinat, alamat tidak akan muncul di peta
+                  </p>
+                </div>
+                
+                <details class="mt-2">
+                  <summary class="text-xs text-warm-gray-500 cursor-pointer hover:text-warm-gray-700">Manual? Lihat cara mendapatkan koordinat</summary>
+                  <div class="mt-2 p-2 bg-white border border-warm-gray-200 rounded text-xs text-warm-gray-600 leading-relaxed">
+                    <p><strong>Google Maps:</strong></p>
+                    <p>1. Buka maps.google.com</p>
+                    <p>2. Cari alamat atau klik lokasi di peta</p>
+                    <p>3. Klik kanan → "What's here?"</p>
+                    <p>4. Copy angka koordinat yang muncul</p>
+                  </div>
+                </details>
+              </div>
+              
+              <div class="flex items-center gap-2.5">
+                <input v-model="aForm.is_current" type="checkbox" id="is_current_chk" class="w-4 h-4 accent-terra rounded" />
+                <label for="is_current_chk" class="text-sm font-medium text-navy cursor-pointer">Alamat aktif saat ini</label>
+              </div>
+              <div v-if="formError" class="form-error">{{ formError }}</div>
             </div>
-            
-            <div class="flex items-center gap-2.5">
-              <input v-model="aForm.is_current" type="checkbox" id="is_current_chk" class="w-4 h-4 accent-terra rounded" />
-              <label for="is_current_chk" class="text-sm font-medium text-navy cursor-pointer">Alamat aktif saat ini</label>
-            </div>
-            <div v-if="formError" class="form-error">{{ formError }}</div>
-            <div class="flex gap-3 pt-1">
+            <div class="flex gap-3 p-6 border-t border-warm-gray-100 bg-warm-gray-50/30 flex-shrink-0">
               <button type="button" @click="closeForm" class="btn-secondary flex-1">Batal</button>
               <button type="submit" :disabled="saving" class="btn-primary flex-1">
                 <span v-if="saving" class="spinner w-4 h-4 border-white/30 border-t-white"></span>

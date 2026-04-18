@@ -1,0 +1,56 @@
+time=2026-04-18T23:55:18.445+07:00 level=INFO msg="✅  Database migrations applied"
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] POST   /api/auth/login           --> github.com/wangsa/backend/internal/delivery/http/handler.(*AuthHandler).Login-fm (5 handlers)
+[GIN-debug] POST   /api/auth/refresh         --> github.com/wangsa/backend/internal/delivery/http/handler.(*AuthHandler).Refresh-fm (4 handlers)
+[GIN-debug] GET    /api/auth/me              --> github.com/wangsa/backend/internal/delivery/http/handler.(*AuthHandler).Me-fm (5 handlers)
+[GIN-debug] POST   /api/auth/logout          --> github.com/wangsa/backend/internal/delivery/http/handler.(*AuthHandler).Logout-fm (5 handlers)
+[GIN-debug] GET    /api/family/tree          --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).GetTree-fm (5 handlers)
+[GIN-debug] GET    /api/family/members       --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).ListMembers-fm (5 handlers)
+[GIN-debug] GET    /api/family/members/:id   --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).GetMember-fm (5 handlers)
+[GIN-debug] POST   /api/family/members       --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).CreateMember-fm (5 handlers)
+[GIN-debug] PUT    /api/family/members/:id   --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).UpdateMember-fm (5 handlers)
+[GIN-debug] DELETE /api/family/members/:id   --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).DeleteMember-fm (6 handlers)
+[GIN-debug] GET    /api/family/members/:id/marriages --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).GetMemberMarriages-fm (5 handlers)
+[GIN-debug] POST   /api/family/marriages     --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).CreateMarriage-fm (5 handlers)
+[GIN-debug] DELETE /api/family/marriages/:id --> github.com/wangsa/backend/internal/delivery/http/handler.(*FamilyHandler).DeleteMarriage-fm (6 handlers)
+[GIN-debug] POST   /api/family/members/:id/photo --> github.com/wangsa/backend/internal/delivery/http/handler.(*UploadHandler).UploadMemberPhoto-fm (5 handlers)
+[GIN-debug] DELETE /api/family/members/:id/photo --> github.com/wangsa/backend/internal/delivery/http/handler.(*UploadHandler).DeleteMemberPhoto-fm (5 handlers)
+[GIN-debug] GET    /api/kas/summary          --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).GetSummary-fm (5 handlers)
+[GIN-debug] GET    /api/kas/categories       --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).ListCategories-fm (5 handlers)
+[GIN-debug] GET    /api/kas/transactions     --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).ListTransactions-fm (5 handlers)
+[GIN-debug] POST   /api/kas/transactions     --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).CreateTransaction-fm (5 handlers)
+[GIN-debug] PUT    /api/kas/transactions/:id --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).UpdateTransaction-fm (5 handlers)
+[GIN-debug] DELETE /api/kas/transactions/:id --> github.com/wangsa/backend/internal/delivery/http/handler.(*KasHandler).DeleteTransaction-fm (6 handlers)
+[GIN-debug] GET    /api/addresses            --> github.com/wangsa/backend/internal/delivery/http/handler.(*AddressHandler).List-fm (5 handlers)
+[GIN-debug] POST   /api/addresses            --> github.com/wangsa/backend/internal/delivery/http/handler.(*AddressHandler).Create-fm (5 handlers)
+[GIN-debug] PUT    /api/addresses/:id        --> github.com/wangsa/backend/internal/delivery/http/handler.(*AddressHandler).Update-fm (5 handlers)
+[GIN-debug] DELETE /api/addresses/:id        --> github.com/wangsa/backend/internal/delivery/http/handler.(*AddressHandler).Delete-fm (6 handlers)
+[GIN-debug] GET    /api/events               --> github.com/wangsa/backend/internal/delivery/http/handler.(*EventHandler).List-fm (5 handlers)
+[GIN-debug] POST   /api/events               --> github.com/wangsa/backend/internal/delivery/http/handler.(*EventHandler).Create-fm (5 handlers)
+[GIN-debug] PUT    /api/events/:id           --> github.com/wangsa/backend/internal/delivery/http/handler.(*EventHandler).Update-fm (5 handlers)
+[GIN-debug] DELETE /api/events/:id           --> github.com/wangsa/backend/internal/delivery/http/handler.(*EventHandler).Delete-fm (6 handlers)
+[GIN-debug] GET    /api/events/:id/attendees --> github.com/wangsa/backend/internal/delivery/http/handler.(*AttendeeHandler).List-fm (5 handlers)
+[GIN-debug] PUT    /api/events/:id/attendees/:member_id --> github.com/wangsa/backend/internal/delivery/http/handler.(*AttendeeHandler).Upsert-fm (5 handlers)
+[GIN-debug] DELETE /api/events/:id/attendees/:member_id --> github.com/wangsa/backend/internal/delivery/http/handler.(*AttendeeHandler).Remove-fm (5 handlers)
+[GIN-debug] GET    /api/notes                --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).List-fm (5 handlers)
+[GIN-debug] GET    /api/notes/categories     --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).ListCategories-fm (5 handlers)
+[GIN-debug] GET    /api/notes/:id            --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).Get-fm (5 handlers)
+[GIN-debug] POST   /api/notes                --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).Create-fm (5 handlers)
+[GIN-debug] PUT    /api/notes/:id            --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).Update-fm (5 handlers)
+[GIN-debug] DELETE /api/notes/:id            --> github.com/wangsa/backend/internal/delivery/http/handler.(*NoteHandler).Delete-fm (5 handlers)
+[GIN-debug] GET    /health                   --> github.com/wangsa/backend/internal/delivery/http.(*Router).registerRoutes.func1 (4 handlers)
+time=2026-04-18T23:55:18.446+07:00 level=INFO msg="🚀  Wangsa API listening on http://localhost:8080"
+time=2026-04-18T23:55:18.446+07:00 level=INFO msg="🌐  CORS allowed for: http://localhost:5173"
+time=2026-04-18T23:55:54.262+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=3.136583ms ip=::1 user_id=1
+time=2026-04-18T23:56:14.801+07:00 level=WARN msg=request method=GET path=/api/auth/me status=401 ms=18.667µs ip=::1
+time=2026-04-18T23:56:22.325+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=1.427334ms ip=::1 user_id=1
+time=2026-04-18T23:56:22.777+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=1.268916ms ip=::1 user_id=1
+time=2026-04-18T23:56:22.950+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=1.234333ms ip=::1 user_id=1
+time=2026-04-18T23:56:23.119+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=1.281125ms ip=::1 user_id=1
+time=2026-04-18T23:56:23.427+07:00 level=INFO msg=request method=GET path=/api/auth/me status=200 ms=1.559417ms ip=::1 user_id=1
+time=2026-04-18T23:56:55.725+07:00 level=INFO msg=request method=POST path=/api/auth/login status=200 ms=62.197834ms ip=::1
+time=2026-04-18T23:56:55.736+07:00 level=INFO msg=request method=GET path=/api/family/tree status=200 ms=4.40525ms ip=::1 user_id=2 errors="Error #01: json: unsupported value: encountered a cycle via []*domain.FamilyMember\n"
+time=2026-04-18T23:57:04.200+07:00 level=INFO msg=request method=GET path=/api/family/tree status=200 ms=4.186042ms ip=::1 user_id=2 errors="Error #01: json: unsupported value: encountered a cycle via []*domain.FamilyMember\n"

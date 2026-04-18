@@ -8,7 +8,7 @@
         <h3 class="font-medium text-gray-900 mb-1">{{ note.title }}</h3>
         <div class="flex items-center space-x-2 text-sm text-gray-500">
           <span v-if="note.category" 
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-terra/10 text-terra-dark">
             {{ note.category }}
           </span>
           <span>{{ formatDate(note.updated_at) }}</span>

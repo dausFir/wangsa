@@ -1,4 +1,4 @@
-.PHONY: help dev-backend dev-frontend install build clean vet fmt tidy db-create db-reset
+.PHONY: help dev-backend dev-frontend install build clean vet fmt tidy db-create db-reset seed-admin seed-all seed-family
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -35,6 +35,12 @@ db-reset: ## Drop and recreate local development database
 
 seed-admin: ## Create default superadmin account
 	cd backend && go run ./cmd/seeder/main.go -create-admin
+
+seed-family: ## Create sample family tree (3 generations with marriages)
+	cd backend && go run ./cmd/seeder/main.go -create-family
+
+seed-all: ## Create all sample data (admin + events + notes + family tree)
+	cd backend && go run ./cmd/seeder/main.go -create-admin -create-events -create-notes -create-family
 
 db-setup: db-create seed-admin ## Complete database setup (create + seed admin)
 

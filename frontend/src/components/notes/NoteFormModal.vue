@@ -5,10 +5,10 @@
     
     <!-- Modal Container -->
     <div class="flex min-h-full items-center justify-center p-4">
-      <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
         
         <!-- Header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
           <button
             @click="handleClose"
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Form Content -->
-        <form @submit.prevent="handleSave" class="flex flex-col h-full">
+        <form @submit.prevent="handleSave" class="flex flex-col flex-1 min-h-0">
           <div class="flex-1 p-6 space-y-4 overflow-y-auto">
             
             <!-- Title Input -->
@@ -35,7 +35,7 @@
                 type="text"
                 required
                 placeholder="Masukkan judul catatan..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terra focus:border-terra"
               />
             </div>
 
@@ -51,7 +51,7 @@
                   type="text"
                   list="categories-list"
                   placeholder="Pilih atau buat kategori baru..."
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terra focus:border-terra"
                 />
                 <datalist id="categories-list">
                   <option v-for="category in categories" :key="category" :value="category"></option>
@@ -65,7 +65,7 @@
                 id="note-pinned"
                 v-model="form.isPinned"
                 type="checkbox"
-                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                class="h-4 w-4 text-terra border-gray-300 rounded focus:ring-terra"
               />
               <label for="note-pinned" class="ml-2 text-sm text-gray-700 flex items-center">
                 <svg class="w-4 h-4 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@
           </div>
 
           <!-- Footer Actions -->
-          <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
             <button
               type="button"
               @click="handleClose"
@@ -101,7 +101,7 @@
             <button
               type="submit"
               :disabled="loading || !form.title.trim() || !form.content.trim()"
-              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              class="px-6 py-2 bg-terra text-white rounded-lg hover:bg-terra-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
             >
               <div v-if="loading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               <span>{{ note ? 'Simpan Perubahan' : 'Buat Catatan' }}</span>
