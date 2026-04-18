@@ -40,14 +40,14 @@ func NewFamilyUsecase(repo domain.FamilyRepository) *FamilyUsecase {
 
 // TreeNode represents a family tree node for JSON serialization without circular references
 type TreeNode struct {
-	ID          int64      `json:"id"`
-	FullName    string     `json:"full_name"`
-	Gender      string     `json:"gender"`
-	BirthDate   *string    `json:"birth_date,omitempty"`
-	DeathDate   *string    `json:"death_date,omitempty"`
-	ParentID    *int64     `json:"parent_id,omitempty"`
-	SpouseIDs   []int64    `json:"spouse_ids,omitempty"`
-	Children    []TreeNode `json:"children,omitempty"`
+	ID           int64      `json:"id"`
+	FullName     string     `json:"full_name"`
+	Gender       string     `json:"gender"`
+	BirthDate    *string    `json:"birth_date,omitempty"`
+	DeathDate    *string    `json:"death_date,omitempty"`
+	ParentID     *int64     `json:"parent_id,omitempty"`
+	SpouseIDs    []int64    `json:"spouse_ids,omitempty"`
+	Children     []TreeNode `json:"children,omitempty"`
 	MarriageInfo []struct {
 		SpouseID     int64   `json:"spouse_id"`
 		SpouseName   string  `json:"spouse_name"`
@@ -62,7 +62,7 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 		return nil, fmt.Errorf("fetch members: %w", err)
 	}
 	fmt.Printf("DEBUG: Found %d members\n", len(allMembers))
-	
+
 	allMarriages, err := u.repo.FindAllMarriages()
 	if err != nil {
 		return nil, fmt.Errorf("fetch marriages: %w", err)
@@ -72,7 +72,7 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 	// Create member map and node map
 	memberMap := make(map[int64]*domain.FamilyMember)
 	nodeMap := make(map[int64]*TreeNode)
-	
+
 	// First pass: create all nodes
 	for _, m := range allMembers {
 		memberMap[m.ID] = m
@@ -100,7 +100,7 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 				// Add spouse IDs
 				hNode.SpouseIDs = append(hNode.SpouseIDs, marriage.WifeID)
 				wNode.SpouseIDs = append(wNode.SpouseIDs, marriage.HusbandID)
-				
+
 				// Add marriage info
 				hNode.MarriageInfo = append(hNode.MarriageInfo, struct {
 					SpouseID     int64   `json:"spouse_id"`
@@ -111,7 +111,7 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 					SpouseName:   wNode.FullName,
 					MarriageDate: marriage.MarriageDate,
 				})
-				
+
 				wNode.MarriageInfo = append(wNode.MarriageInfo, struct {
 					SpouseID     int64   `json:"spouse_id"`
 					SpouseName   string  `json:"spouse_name"`
@@ -147,7 +147,7 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 		// Create a copy of the node
 		result := *node
 		result.Children = []TreeNode{}
-		
+
 		// Find all children of this node
 		for _, member := range allMembers {
 			if member.ParentID != nil && *member.ParentID == node.ID {
@@ -170,12 +170,12 @@ func (u *FamilyUsecase) BuildFamilyTree() ([]TreeNode, error) {
 	}
 
 	fmt.Printf("DEBUG: Found %d root members\n", len(finalRoots))
-	
+
 	// Debug: print tree structure for first root
 	if len(finalRoots) > 0 {
 		fmt.Printf("DEBUG: First root '%s' has %d children\n", finalRoots[0].FullName, len(finalRoots[0].Children))
 	}
-	
+
 	return finalRoots, nil
 }
 

@@ -325,7 +325,7 @@ func createSampleFamilyData(familyRepo domain.FamilyRepository, userRepo domain.
 
 	// === GENERATION 1: KAKEK-NENEK ===
 	log.Println("Creating Generation 1: Kakek-Nenek...")
-	
+
 	kakek := &domain.FamilyMember{
 		FullName:   "Raden Soekarno Wangsa",
 		Nickname:   strPtr("Kakek Karno"),
@@ -337,7 +337,7 @@ func createSampleFamilyData(familyRepo domain.FamilyRepository, userRepo domain.
 		CreatedBy:  int64Ptr(admin.ID),
 		UpdatedBy:  int64Ptr(admin.ID),
 	}
-	
+
 	nenek := &domain.FamilyMember{
 		FullName:   "Siti Fatimah Wangsa",
 		Nickname:   strPtr("Nenek Fatim"),
@@ -375,7 +375,7 @@ func createSampleFamilyData(familyRepo domain.FamilyRepository, userRepo domain.
 
 	// === GENERATION 2: ANAK-ANAK KAKEK-NENEK ===
 	log.Println("\nCreating Generation 2: Anak-anak...")
-	
+
 	// Anak pertama - Budi (laki-laki)
 	budi := &domain.FamilyMember{
 		FullName:   "Budi Santoso Wangsa",
